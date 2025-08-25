@@ -31,5 +31,15 @@ $importer = new KeycloakUserImporter(
 
 // Import users
 $results = $importer->importUsersBatch($oldUsers);
+// log the results in a failed.json file for retry again
+$failed = [];
+foreach ($results as $result) {
+    if ($result['result'] !== true) {
+        $failed[] = $result['user'] ?? null;
+    }
+}
 
+if (count($failed) > 0) {
+    logFailingUsersToFile($failed);
+}
 logger()->info(json_encode($results, JSON_PRETTY_PRINT));

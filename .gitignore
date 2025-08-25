@@ -2,4 +2,5 @@
 
 /vendor/
 .env
-logs/app.log
+logs/*.log
+logs/failed-imports/*.json

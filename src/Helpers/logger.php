@@ -22,3 +22,13 @@ function logger(): Logger
     }
     return $logger;
 }
+
+function logFailingUsersToFile(array $failedUsers): void
+{
+    $filePath = __DIR__ . "/../../logs/failed-imports/failed-".date('Y-m-dTH:i:s').".json";
+    if (!is_dir(dirname($filePath))) {
+        mkdir(dirname($filePath), 0777, true);
+    }
+    file_put_contents($filePath, json_encode($failedUsers, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    logger()->info("Logged " . count($failedUsers) . " failed users to $filePath");
+}
