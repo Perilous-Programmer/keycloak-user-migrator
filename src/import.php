@@ -1,6 +1,5 @@
 <?php
-// Keycloak user import script
-require 'vendor/autoload.php'; // If using Composer
+require 'vendor/autoload.php';
 
 use GuzzleHttp\Client;
 
@@ -77,34 +76,5 @@ class KeycloakUserImporter {
         }
         return $results;
     }
-}
-
-// Usage example
-$importer = new KeycloakUserImporter(
-    'https://your-keycloak-domain.com',
-    'your-realm',
-    'admin-cli', // Client ID with admin privileges
-    'your-client-secret'
-);
-
-// Fetch users from old database
-$oldUsers = fetchUsersFromOldDatabase();
-
-// Import users
-$results = $importer->importUsersBatch($oldUsers);
-
-print_r($results);
-
-function fetchUsersFromOldDatabase() {
-    // Connect to your old database and fetch users
-    $pdo = new PDO('mysql:host=localhost;dbname=old_db', 'username', 'password');
-    $stmt = $pdo->query("SELECT id, username, email, password_hash, first_name, last_name FROM users");
-    
-    $users = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $users[] = $row;
-    }
-    
-    return $users;
 }
 ?>

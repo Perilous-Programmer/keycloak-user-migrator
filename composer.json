@@ -1,0 +1,22 @@
+{
+    "name": "kali/keycloak",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "perilous-programmer",
+            "email": "softengrabdullah@gmail.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^7.10"
+    },
+    "config": {
+        "platform": {
+            "php": "7.4"
+        }
+    }
+}
