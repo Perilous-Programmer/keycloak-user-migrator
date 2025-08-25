@@ -10,6 +10,8 @@ class KeycloakUserImporter {
     private $accessToken;
     private $realm;
     private $keycloakUrl;
+
+    const DEFAULT_PASSWORD = 'ChangeMe123!';
     
     public function __construct($keycloakUrl, $realm, $clientId, $clientSecret) {
         $this->keycloakUrl = $keycloakUrl;
@@ -40,11 +42,11 @@ class KeycloakUserImporter {
             'firstName' => $userData['first_name'] ?? '',
             'lastName' => $userData['last_name'] ?? '',
             'enabled' => true,
-            'emailVerified' => false,
+            'emailVerified' => true,
             'credentials' => [
                 [
                     'type' => 'password',
-                    'value' => $userData['password_hash'], // Or temporary password
+                    'value' => $userData['password_hash'] ?? self::DEFAULT_PASSWORD, // Or temporary password
                     'temporary' => true // Force password change on first login
                 ]
             ],
@@ -71,6 +73,7 @@ class KeycloakUserImporter {
     public function importUsersBatch($users) {
         $results = [];
         foreach ($users as $user) {
+            $user['email'] = "{$user['mobile']}@ott.com";
             $results[] = [
                 'user' => $user['username'],
                 'result' => $this->importUser($user)

@@ -4,8 +4,8 @@ use App\Services\KeycloakUserImporter;
 
 function fetchUsersFromOldDatabase()
 {
-    $pdo = new PDO('mysql:host=localhost;dbname=old_db', 'username', 'password');
-    $stmt = $pdo->query("SELECT id, username, email, password_hash, first_name, last_name FROM users");
+    $pdo = new PDO('mysql:host='.env("DB_HOST").';dbname='.env("DB_NAME"), env("DB_USER"), env("DB_PASS"));
+    $stmt = $pdo->query("SELECT uid as id, first_name, last_name, username, email, mobile FROM users LIMIT 5");
 
     $users = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -15,6 +15,11 @@ function fetchUsersFromOldDatabase()
     return $users;
 }
 
+// Fetch users from old database
+$oldUsers = fetchUsersFromOldDatabase();
+
+logger()->info('Fetched ' . json_encode($oldUsers,JSON_PRETTY_PRINT) . ' users from the old database.');
+
 // Usage example
 $importer = new KeycloakUserImporter(
     env('KEYCLOAK_URL'),
@@ -23,8 +28,6 @@ $importer = new KeycloakUserImporter(
     env('KEYCLOAK_CLIENT_SECRET')
 );
 
-// Fetch users from old database
-$oldUsers = fetchUsersFromOldDatabase();
 
 // Import users
 $results = $importer->importUsersBatch($oldUsers);
