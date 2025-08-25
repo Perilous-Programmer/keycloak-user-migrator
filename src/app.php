@@ -34,7 +34,7 @@ $results = $importer->importUsersBatch($oldUsers);
 // log the results in a failed.json file for retry again
 $failed = [];
 foreach ($results as $result) {
-    if ($result['result'] !== true) {
+    if ($result['result']['success'] !== true) {
         $failed[] = $result['user'] ?? null;
     }
 }

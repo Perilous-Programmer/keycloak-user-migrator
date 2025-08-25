@@ -23,11 +23,12 @@ class KeycloakUserImporter {
     }
     
     private function authenticate($clientId, $clientSecret) {
-        $response = $this->client->post("/realms/{$this->realm}/protocol/openid-connect/token", [
+        $response = $this->client->post("/realms/master/protocol/openid-connect/token", [
             'form_params' => [
-                'grant_type' => 'client_credentials',
-                'client_id' => $clientId,
-                'client_secret' => $clientSecret
+                'grant_type' => env('KEYCLOAK_GRANT_TYPE'),
+                'client_id' => env('KEYCLOAK_CLIENT_ID'),
+                'username' => env('KEYCLOAK_USERNAME'),
+                'password' => env('KEYCLOAK_PASSWORD')                
             ]
         ]);
         
@@ -56,7 +57,7 @@ class KeycloakUserImporter {
         ];
         
         try {
-            $response = $this->client->post("/admin/realms/{$this->realm}/users", [
+            $response = $this->client->post("admin/realms/{$this->realm}/users", [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->accessToken,
                     'Content-Type' => 'application/json'
@@ -74,6 +75,8 @@ class KeycloakUserImporter {
         $results = [];
         foreach ($users as $user) {
             $user['email'] = "{$user['mobile']}@ott.com";
+            $user['username'] = $user['mobile'];
+            $user['last_name'] = empty($user['last_name']) ? "N/A" : $user['last_name'];
             $results[] = [
                 'user' => $user,
                 'result' => $this->importUser($user)
