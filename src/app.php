@@ -1,7 +1,6 @@
 <?php
-declare(strict_types=1);
+require __DIR__ . '/../bootstrap/app.php';
 use App\Services\KeycloakUserImporter;
-require __DIR__ . '/../vendor/autoload.php';
 
 function fetchUsersFromOldDatabase()
 {
@@ -18,10 +17,10 @@ function fetchUsersFromOldDatabase()
 
 // Usage example
 $importer = new KeycloakUserImporter(
-    'https://your-keycloak-domain.com',
-    'your-realm',
-    'admin-cli', // Client ID with admin privileges
-    'your-client-secret'
+    env('KEYCLOAK_URL'),
+    env('KEYCLOAK_REALM'),
+    env('KEYCLOAK_CLIENT_ID'), 
+    env('KEYCLOAK_CLIENT_SECRET')
 );
 
 // Fetch users from old database
@@ -30,9 +29,4 @@ $oldUsers = fetchUsersFromOldDatabase();
 // Import users
 $results = $importer->importUsersBatch($oldUsers);
 
-print_r($results);
-
-
-
-// $app = new Application();
-// $app->run();
+logger()->info(json_encode($results, JSON_PRETTY_PRINT));
