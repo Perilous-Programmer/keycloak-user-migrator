@@ -9,6 +9,8 @@ class Application
     private $batchSize;
     private $batchStart;
     private $delay;
+    Private $pdo;
+    private $table;
 
         /**
      * Application constructor.
@@ -21,12 +23,14 @@ class Application
         ?int $totalUsers = null,
         ?int $batchSize = null,
         ?int $batchStart = null,
-        ?int $delay = null
+        ?int $delay = null,
+        $table = null
     ) {
         $this->totalUsers = $totalUsers;
         $this->batchSize = $batchSize;
         $this->batchStart = $batchStart;
         $this->delay = $delay;
+        $this->table = $table;
 
         $this->importer = new KeycloakUserImporter(
             env('KEYCLOAK_URL'),
@@ -34,12 +38,7 @@ class Application
             env('KEYCLOAK_CLIENT_ID'),
             env('KEYCLOAK_CLIENT_SECRET')
         );
-    }
-
-    private function fetchUsersFromOldDatabase($batchStart = 0, $batchSize = 10)
-    {
-        $orderby = env('DB_USER_ORDERBY', false)? "ORDER BY modified DESC" : "";
-        $pdo = new PDO(
+        $this->pdo = new PDO(
             'mysql:host=' . env("DB_HOST") . ';dbname=' . env("DB_NAME"),
             env("DB_USER"),
             env("DB_PASS"),
@@ -48,7 +47,12 @@ class Application
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             )
         );
-        $stmt = $pdo->prepare("SELECT uid as id, first_name, last_name, username, email, mobile FROM users $orderby LIMIT :start, :size");
+    }
+
+    private function fetchUsersFromOldDatabase($batchStart = 0, $batchSize = 10)
+    {
+        $orderby = env('DB_USER_ORDERBY', false)? "ORDER BY modified DESC" : "";
+        $stmt = $this->pdo->prepare("SELECT uid as id, first_name, last_name, username, email, mobile FROM {$this->table} where status < 200  LIMIT :start, :size");
         $stmt->bindValue(':start', (int)$batchStart, PDO::PARAM_INT);
         $stmt->bindValue(':size', (int)$batchSize, PDO::PARAM_INT);
         $stmt->execute();
@@ -64,6 +68,7 @@ class Application
     public function run()
     {
         $failed = [];
+        $success = [];
         for ($start = 0; $start < $this->totalUsers; $start += $this->batchSize) {
             $users = $this->fetchUsersFromOldDatabase($start, $this->batchSize);
             // logger()->info("Fetched batch starting at $start: " . json_encode($users, JSON_PRETTY_PRINT));
@@ -73,7 +78,13 @@ class Application
             foreach ($results as $result) {
                 if ($result['result']['success'] !== true) {
                     $failed[] = $result['user'] ?? null;
+                } else {
+                    $success[] = $result['user']['id'];
                 }
+            }
+            if (count($success) > 0) {
+                logger()->info("Successfully imported users: " . implode(", ", $success));
+                $this->pdo->exec("UPDATE {$this->table} SET status=200 WHERE uid IN (" . implode(", ", $success) . ")");
             }
 
             // logger()->info("Batch results: " . json_encode($results, JSON_PRETTY_PRINT));
