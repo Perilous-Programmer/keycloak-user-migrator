@@ -41,7 +41,11 @@ class Application
         $pdo = new PDO(
             'mysql:host=' . env("DB_HOST") . ';dbname=' . env("DB_NAME"),
             env("DB_USER"),
-            env("DB_PASS")
+            env("DB_PASS"),
+            array(
+                PDO::ATTR_TIMEOUT => env(PDO_TIMEOUT, 5), // in seconds
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            )
         );
         $stmt = $pdo->prepare("SELECT uid as id, first_name, last_name, username, email, mobile FROM users ORDER BY modified DESC LIMIT :start, :size");
         $stmt->bindValue(':start', (int)$batchStart, PDO::PARAM_INT);
