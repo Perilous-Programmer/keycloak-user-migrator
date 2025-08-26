@@ -10,12 +10,23 @@ class Application
     private $batchStart;
     private $delay;
 
-    public function __construct()
-    {
-        $this->totalUsers = (int)env('TOTAL_USERS', 100);
-        $this->batchSize = (int)env('BATCH_SIZE', 10);
-        $this->batchStart = (int)env('BATCH_START', 0);
-        $this->delay = (int)env('DELAY_BETWEEN_BATCHES', 5);
+        /**
+     * Application constructor.
+     * @param int|null $totalUsers
+     * @param int|null $batchSize
+     * @param int|null $batchStart
+     * @param int|null $delay
+     */
+    public function __construct(
+        ?int $totalUsers = null,
+        ?int $batchSize = null,
+        ?int $batchStart = null,
+        ?int $delay = null
+    ) {
+        $this->totalUsers = $totalUsers;
+        $this->batchSize = $batchSize;
+        $this->batchStart = $batchStart;
+        $this->delay = $delay;
 
         $this->importer = new KeycloakUserImporter(
             env('KEYCLOAK_URL'),
