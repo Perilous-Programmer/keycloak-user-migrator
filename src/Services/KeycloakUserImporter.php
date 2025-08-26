@@ -74,7 +74,7 @@ class KeycloakUserImporter {
     public function importUsersBatch($users) {
         $results = [];
         foreach ($users as $user) {
-            $user['email'] = "{$user['mobile']}@ott.com";
+            $user['email'] = "{$user['mobile']}@jott.com";
             $user['username'] = $user['mobile'];
             $user['last_name'] = empty($user['last_name']) ? "NA" : $user['last_name'];
             $result = [
@@ -85,6 +85,9 @@ class KeycloakUserImporter {
                     logger()->info("Imported user: id > {$user['id']}, mobile > {$user['mobile']}" );
                 } else {
                     logger()->error("Failed to import user: id > {$user['id']}, mobile > {$user['mobile']}. Error: " . $result['result']['error']);
+                    if (strpos($result['result']['error'], '409 Conflict') == false) {
+                        break;
+                    }
                 }
             $results[] = $result;
         }
