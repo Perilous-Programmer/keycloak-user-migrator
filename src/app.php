@@ -38,6 +38,7 @@ class Application
 
     private function fetchUsersFromOldDatabase($batchStart = 0, $batchSize = 10)
     {
+        $orderby = env('DB_USER_ORDERBY', false)? "ORDER BY modified DESC" : "";
         $pdo = new PDO(
             'mysql:host=' . env("DB_HOST") . ';dbname=' . env("DB_NAME"),
             env("DB_USER"),
@@ -47,7 +48,7 @@ class Application
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             )
         );
-        $stmt = $pdo->prepare("SELECT uid as id, first_name, last_name, username, email, mobile FROM users ORDER BY modified DESC LIMIT :start, :size");
+        $stmt = $pdo->prepare("SELECT uid as id, first_name, last_name, username, email, mobile FROM users $orderby LIMIT :start, :size");
         $stmt->bindValue(':start', (int)$batchStart, PDO::PARAM_INT);
         $stmt->bindValue(':size', (int)$batchSize, PDO::PARAM_INT);
         $stmt->execute();
