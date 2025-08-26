@@ -64,7 +64,7 @@ class Application
     public function run()
     {
         $failed = [];
-        for ($start = $this->batchStart; $start < $this->totalUsers; $start += $this->batchSize) {
+        for ($start = 0; $start < $this->totalUsers; $start += $this->batchSize) {
             $users = $this->fetchUsersFromOldDatabase($start, $this->batchSize);
             // logger()->info("Fetched batch starting at $start: " . json_encode($users, JSON_PRETTY_PRINT));
 
