@@ -77,10 +77,16 @@ class KeycloakUserImporter {
             $user['email'] = "{$user['mobile']}@ott.com";
             $user['username'] = $user['mobile'];
             $user['last_name'] = empty($user['last_name']) ? "NA" : $user['last_name'];
-            $results[] = [
+            $result = [
                 'user' => $user,
                 'result' => $this->importUser($user)
             ];
+            if ($result['result']['success'] == true) {
+                    logger()->info("Imported user: id > {$user['id']}, mobile > {$user['mobile']}" );
+                } else {
+                    logger()->error("Failed to import user: id > {$user['id']}, mobile > {$user['mobile']}. Error: " . $result['result']['error']);
+                }
+            $results[] = $result;
         }
         return $results;
     }

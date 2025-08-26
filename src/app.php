@@ -43,7 +43,7 @@ class Application
             env("DB_USER"),
             env("DB_PASS"),
             array(
-                PDO::ATTR_TIMEOUT => env(PDO_TIMEOUT, 5), // in seconds
+                PDO::ATTR_TIMEOUT => env("PDO_TIMEOUT", 5), // in seconds
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             )
         );
@@ -65,7 +65,7 @@ class Application
         $failed = [];
         for ($start = $this->batchStart; $start < $this->totalUsers; $start += $this->batchSize) {
             $users = $this->fetchUsersFromOldDatabase($start, $this->batchSize);
-            logger()->info("Fetched batch starting at $start: " . json_encode($users, JSON_PRETTY_PRINT));
+            // logger()->info("Fetched batch starting at $start: " . json_encode($users, JSON_PRETTY_PRINT));
 
             $results = $this->importer->importUsersBatch($users);
 
@@ -75,7 +75,7 @@ class Application
                 }
             }
 
-            logger()->info("Batch results: " . json_encode($results, JSON_PRETTY_PRINT));
+            // logger()->info("Batch results: " . json_encode($results, JSON_PRETTY_PRINT));
 
             if ($this->delay > 0 && ($start + $this->batchSize) < $this->totalUsers) {
                 logger()->info("Sleeping for {$this->delay} seconds before next batch...");
