@@ -76,7 +76,7 @@ class KeycloakUserImporter {
         foreach ($users as $user) {
             $user['email'] = "{$user['mobile']}@ott.com";
             $user['username'] = $user['mobile'];
-            $user['last_name'] = empty($user['last_name']) ? "N/A" : $user['last_name'];
+            $user['last_name'] = empty($user['last_name']) ? "NA" : $user['last_name'];
             $results[] = [
                 'user' => $user,
                 'result' => $this->importUser($user)

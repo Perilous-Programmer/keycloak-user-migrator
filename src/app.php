@@ -5,7 +5,7 @@ use App\Services\KeycloakUserImporter;
 function fetchUsersFromOldDatabase()
 {
     $pdo = new PDO('mysql:host='.env("DB_HOST").';dbname='.env("DB_NAME"), env("DB_USER"), env("DB_PASS"));
-    $stmt = $pdo->query("SELECT uid as id, first_name, last_name, username, email, mobile FROM users LIMIT 5");
+    $stmt = $pdo->query("SELECT uid as id, first_name, last_name, username, email, mobile FROM users");
 
     $users = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
