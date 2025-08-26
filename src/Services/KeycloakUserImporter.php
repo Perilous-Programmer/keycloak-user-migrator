@@ -10,6 +10,8 @@ class KeycloakUserImporter {
     private $accessToken;
     private $realm;
     private $keycloakUrl;
+    private $clientId; 
+    private $clientSecret;
 
     const DEFAULT_PASSWORD = 'ChangeMe123!';
     
@@ -17,6 +19,8 @@ class KeycloakUserImporter {
         $this->keycloakUrl = $keycloakUrl;
         $this->realm = $realm;
         $this->client = new Client(['base_uri' => $keycloakUrl]);
+        $this->clientId = $clientId; 
+        $this->clientSecret = $clientSecret;
         
         // Get access token
         $this->authenticate($clientId, $clientSecret);
@@ -86,6 +90,7 @@ class KeycloakUserImporter {
                 } else {
                     logger()->error("Failed to import user: id > {$user['id']}, mobile > {$user['mobile']}. Error: " . $result['result']['error']);
                     if (strpos($result['result']['error'], '409 Conflict') == false) {
+                        $this->authenticate($this->clientId, $this->clientSecret);
                         break;
                     }
                 }
